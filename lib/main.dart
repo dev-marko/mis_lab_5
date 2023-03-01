@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mis_lab_4/widgets/new_exam.dart';
-import 'package:uuid/uuid.dart';
+import 'package:mis_lab_4/screens/authentication_screen.dart';
+import 'package:mis_lab_4/screens/exams_screen.dart';
+import 'package:provider/provider.dart';
 
-import 'package:mis_lab_4/models/exam.dart';
-import 'package:mis_lab_4/widgets/exam_list.dart';
+import 'package:mis_lab_4/providers/authentication_provider.dart';
 
 /// ### Laboratory Exercise 4 ###
 /// Author: Marko Spasenovski
@@ -20,104 +20,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Exam Scheduler',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.deepOrange,
-          accentColor: Colors.black,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: Auth(),
         ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.deepOrange,
-          iconTheme: IconThemeData(
-            color: Colors.black,
-          ),
-          actionsIconTheme: IconThemeData(
-            color: Colors.black,
-          ),
-        ),
-      ),
-      home: const MyHomePage(title: 'Exam Scheduler'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final List<Exam> _exams = [
-    // Exam(
-    //   id: const Uuid().v4(),
-    //   subjectName: 'Mobile Informatic Systems',
-    //   date: DateTime.now(),
-    // ),
-    // Exam(
-    //   id: const Uuid().v4(),
-    //   subjectName: 'Intro to Robotics',
-    //   date: DateTime.now(),
-    // ),
-  ];
-
-  void _addNewExam(String subjectName, DateTime date) {
-    final newExam = Exam(
-      id: const Uuid().v4(),
-      subjectName: subjectName,
-      date: date,
-    );
-
-    setState(() {
-      _exams.add(newExam);
-    });
-  }
-
-  void _showAddExam(BuildContext ctx) {
-    showModalBottomSheet(
-      context: ctx,
-      builder: (bCtx) {
-        return NewExam(
-          addNewExamHandler: _addNewExam,
-        );
-      },
-    );
-  }
-
-  void _deleteExam(String id) {
-    setState(() {
-      _exams.removeWhere((element) => element.id == id);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            onPressed: () => _showAddExam(context),
-            icon: Icon(
-              Icons.add,
-              color: Theme.of(context).colorScheme.secondary,
+      ],
+      child: Consumer<Auth>(
+        builder: (ctx, auth, _) => MaterialApp(
+          title: '191128 Exams',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.deepOrange,
+              accentColor: Colors.black,
+            ),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.deepOrange,
+              iconTheme: IconThemeData(
+                color: Colors.black,
+              ),
+              actionsIconTheme: IconThemeData(
+                color: Colors.black,
+              ),
             ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ExamList(
-              exams: _exams,
-              deleteExamHandler: _deleteExam,
-            ),
-          ],
+          home: auth.isAuthenticated
+              ? const ExamsScreen()
+              : const AuthenticationScreen(),
+          routes: {
+            ExamsScreen.routeName: (ctx) => const ExamsScreen(),
+          },
         ),
       ),
     );
