@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mis_lab_4/providers/exams_provider.dart';
 import 'package:mis_lab_4/widgets/exam_list.dart';
 import 'package:mis_lab_4/widgets/new_exam.dart';
-import 'package:uuid/uuid.dart';
-
-import 'package:mis_lab_4/models/exam.dart';
+import 'package:provider/provider.dart';
 
 class ExamsScreen extends StatefulWidget {
   static const String routeName = '/exams';
@@ -15,46 +14,32 @@ class ExamsScreen extends StatefulWidget {
 }
 
 class _ExamsScreenState extends State<ExamsScreen> {
-final List<Exam> _exams = [
-    // Exam(
-    //   id: const Uuid().v4(),
-    //   subjectName: 'Mobile Informatic Systems',
-    //   date: DateTime.now(),
-    // ),
-    // Exam(
-    //   id: const Uuid().v4(),
-    //   subjectName: 'Intro to Robotics',
-    //   date: DateTime.now(),
-    // ),
-  ];
+  bool _isInit = true;
+  bool _isLoading = false;
 
-  void _addNewExam(String subjectName, DateTime date) {
-    final newExam = Exam(
-      id: const Uuid().v4(),
-      subjectName: subjectName,
-      date: date,
-    );
-
-    setState(() {
-      _exams.add(newExam);
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<ExamsProvider>(context).fetchExams().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+      _isInit = false;
+    }
   }
 
   void _showAddExam(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
       builder: (bCtx) {
-        return NewExam(
-          addNewExamHandler: _addNewExam,
-        );
+        return const NewExam();
       },
     );
-  }
-
-  void _deleteExam(String id) {
-    setState(() {
-      _exams.removeWhere((element) => element.id == id);
-    });
   }
 
   @override
@@ -72,17 +57,18 @@ final List<Exam> _exams = [
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ExamList(
-              exams: _exams,
-              deleteExamHandler: _deleteExam,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  ExamList(),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

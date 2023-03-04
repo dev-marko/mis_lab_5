@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 
-import 'package:mis_lab_4/models/exam.dart';
+import 'package:mis_lab_4/providers/exams_provider.dart';
 import 'package:mis_lab_4/widgets/exam_card.dart';
+import 'package:provider/provider.dart';
 
 class ExamList extends StatelessWidget {
-  final List<Exam> exams;
-  final Function deleteExamHandler;
-
-  const ExamList({
-    super.key,
-    required this.exams,
-    required this.deleteExamHandler,
-  });
+  const ExamList({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final examsProvider = Provider.of<ExamsProvider>(context);
+    final List<Exam> exams = examsProvider.exams;
+
     return SizedBox(
       height: 500,
       child: exams.isEmpty
@@ -35,12 +32,10 @@ class ExamList extends StatelessWidget {
               ],
             )
           : ListView.builder(
-              itemBuilder: (ctx, index) {
-                return ExamCard(
-                  exam: exams[index],
-                  deleteExamHandler: deleteExamHandler,
-                );
-              },
+              itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
+                value: exams[index],
+                child: const ExamCard(),
+              ),
               itemCount: exams.length,
             ),
     );

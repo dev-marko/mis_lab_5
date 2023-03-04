@@ -99,4 +99,25 @@ class Auth with ChangeNotifier {
     final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
     _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
+
+  Future<void> _createExamsListForNewUser() async {
+    final Uri url = Uri.https(
+      'finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
+      '/userExams/$userId.json',
+      {
+        "auth": token,
+      },
+    );
+
+    try {
+      final result = await http.post(
+        url,
+        body: json.encode({
+          []
+        }),
+      );
+    } catch (err) {
+      print(err);
+    }
+  }
 }

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mis_lab_4/providers/exams_provider.dart';
+import 'package:provider/provider.dart';
 
 class NewExam extends StatefulWidget {
-  final Function addNewExamHandler;
-
-  const NewExam({
-    super.key,
-    required this.addNewExamHandler,
-  });
+  const NewExam({super.key});
 
   @override
   State<NewExam> createState() => _NewExamState();
@@ -17,7 +14,7 @@ class _NewExamState extends State<NewExam> {
   final _subjectNameController = TextEditingController();
   DateTime? _selectedDate;
 
-  void _submitExam() {
+  Future<void> _submitExam() async {
     if (_subjectNameController.text.isEmpty) {
       return;
     }
@@ -28,10 +25,8 @@ class _NewExamState extends State<NewExam> {
       return;
     }
 
-    widget.addNewExamHandler(
-      enteredSubjectName,
-      _selectedDate,
-    );
+    await Provider.of<ExamsProvider>(context, listen: false)
+        .addExam(Exam(subjectName: enteredSubjectName, date: _selectedDate!));
 
     Navigator.of(context).pop();
   }

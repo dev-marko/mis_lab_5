@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mis_lab_4/providers/exams_provider.dart';
 import 'package:mis_lab_4/screens/authentication_screen.dart';
 import 'package:mis_lab_4/screens/exams_screen.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,14 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(
           value: Auth(),
+        ),
+        ChangeNotifierProxyProvider<Auth, ExamsProvider>(
+          create: (_) => ExamsProvider(),
+          update: (ctx, auth, previousExams) => ExamsProvider(
+            auth.token,
+            auth.userId,
+            previousExams == null ? [] : previousExams.exams,
+          ),
         ),
       ],
       child: Consumer<Auth>(
