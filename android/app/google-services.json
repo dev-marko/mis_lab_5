@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "295585647172",
+    "firebase_url": "https://finki-mis-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "finki-mis",
+    "storage_bucket": "finki-mis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295585647172:android:334b4e2181fd29bc43ca11",
+        "android_client_info": {
+          "package_name": "com.example.mis_lab_4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "295585647172-ajn6ikm33c58f3k6j3i2h41h9ml7o8f2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASp0D_HH45JKQ6hDp3jAn8eQQ0eeN6N6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "295585647172-ajn6ikm33c58f3k6j3i2h41h9ml7o8f2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "295585647172-jm2r4n982qh8085f0vqf44i86jrc1v62.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.misLab4"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

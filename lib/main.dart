@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 import 'package:mis_lab_4/providers/exams_provider.dart';
 import 'package:mis_lab_4/screens/authentication_screen.dart';
 import 'package:mis_lab_4/screens/exams_screen.dart';
-import 'package:provider/provider.dart';
-
 import 'package:mis_lab_4/providers/authentication_provider.dart';
 
 /// ### Laboratory Exercise 4 ###
@@ -12,7 +15,11 @@ import 'package:mis_lab_4/providers/authentication_provider.dart';
 /// Subject: Mobile Informatic Systems
 /// Mentor: Petre Lameski pHd.
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
