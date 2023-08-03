@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mis_lab_4/models/exceptions/http_exception.dart';
@@ -20,12 +21,33 @@ class ExamsProvider with ChangeNotifier {
   List<Exam> _exams = [];
   final String authToken;
   final String userId;
+  final db = FirebaseDatabase.instance;
 
   ExamsProvider(
       [this.authToken = "", this.userId = "", this._exams = const []]);
 
   List<Exam> get exams {
     return [..._exams];
+  }
+
+  Future<void> fetchExamsSdk() async {
+    try {
+      var userExamsSnapshot = await db.ref('userExams/$userId').get();
+      if (userExamsSnapshot.exists) {
+        for (var examSnapshot in userExamsSnapshot.children) {
+          var exam = examSnapshot.value as Map<Object?, Object?>;
+          _exams.add(
+            Exam(
+              id: examSnapshot.key,
+              subjectName: exam['subjectName'] as String,
+              date: DateTime.parse(exam['date'] as String),
+            ),
+          );
+        }
+      }
+    } catch (err) {
+      rethrow;
+    }
   }
 
   Future<void> fetchExams() async {
