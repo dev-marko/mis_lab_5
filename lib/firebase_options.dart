@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -49,23 +51,25 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyASp0D_HH45JKQ6hDp3jAn8eQQ0eeN6N6o',
+  static FirebaseOptions android = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY']!,
     appId: '1:295585647172:android:334b4e2181fd29bc43ca11',
     messagingSenderId: '295585647172',
     projectId: 'finki-mis',
-    databaseURL: 'https://finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL: dotenv.env['FIREBASE_DB_URL'],
     storageBucket: 'finki-mis.appspot.com',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDoJ7FoeZbiGOTYG-VyFOnaNELPCaJYgaQ',
+  static FirebaseOptions ios = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY']!,
     appId: '1:295585647172:ios:4879806df082c7ff43ca11',
     messagingSenderId: '295585647172',
     projectId: 'finki-mis',
-    databaseURL: 'https://finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'finki-mis.appspot.com',
-    iosClientId: '295585647172-jm2r4n982qh8085f0vqf44i86jrc1v62.apps.googleusercontent.com',
+    iosClientId:
+        '295585647172-jm2r4n982qh8085f0vqf44i86jrc1v62.apps.googleusercontent.com',
     iosBundleId: 'com.example.misLab4',
   );
 }
