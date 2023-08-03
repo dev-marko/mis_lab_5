@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ class Auth with ChangeNotifier {
   DateTime? _expiryDate;
   String? _userId; // logged in user
   Timer? _authTimer;
+  final String _apiKey = dotenv.env['FIREBASE_WEB_API_KEY']!;
 
   String get token {
     if (_expiryDate != null &&
@@ -31,7 +33,7 @@ class Auth with ChangeNotifier {
   Future<void> _authenticate(
       String email, String password, String urlSegment) async {
     final url = Uri.parse(
-        'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyCKToYWApDlLM_8viYGRmlt7A1Hx024QOM');
+        'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=$_apiKey');
     try {
       final response = await http.post(
         url,
@@ -112,9 +114,7 @@ class Auth with ChangeNotifier {
     try {
       final result = await http.post(
         url,
-        body: json.encode({
-          []
-        }),
+        body: json.encode({[]}),
       );
     } catch (err) {
       print(err);
