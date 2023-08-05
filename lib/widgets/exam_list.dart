@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'package:mis_lab_4/providers/exams_provider.dart';
-import 'package:mis_lab_4/widgets/exam_card.dart';
 import 'package:provider/provider.dart';
+
+import '../models/exam.dart';
+import '../providers/exams_provider.dart';
+import 'exam_card.dart';
 
 class ExamList extends StatelessWidget {
   const ExamList({super.key});
@@ -13,7 +14,7 @@ class ExamList extends StatelessWidget {
     final List<Exam> exams = examsProvider.exams;
 
     return SizedBox(
-      height: 500,
+      height: 650,
       child: exams.isEmpty
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,

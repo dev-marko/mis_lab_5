@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'package:mis_lab_4/providers/exams_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../models/exam.dart';
+import '../providers/exams_provider.dart';
 
 class ExamCard extends StatelessWidget {
   const ExamCard({super.key});
