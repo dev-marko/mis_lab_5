@@ -5,22 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mis_lab_4/models/exceptions/http_exception.dart';
 
-class Exam with ChangeNotifier {
-  final String? id;
-  final String subjectName;
-  final DateTime date;
-
-  Exam({
-    this.id,
-    required this.subjectName,
-    required this.date,
-  });
-}
+import '../models/exam.dart';
 
 class ExamsProvider with ChangeNotifier {
   List<Exam> _exams = [];
+  Map<DateTime, List<Exam>> _examsMap = {};
   final String authToken;
-  final String userId;
+  final String? userId;
   final db = FirebaseDatabase.instance;
 
   ExamsProvider(
@@ -28,6 +19,10 @@ class ExamsProvider with ChangeNotifier {
 
   List<Exam> get exams {
     return [..._exams];
+  }
+
+  Map<DateTime, List<Exam>> get examsMap {
+    return {}..addAll(_examsMap);
   }
 
   Future<void> fetchExamsSdk() async {
@@ -48,6 +43,15 @@ class ExamsProvider with ChangeNotifier {
     } catch (err) {
       rethrow;
     }
+  }
+
+  Map<DateTime, List<Exam>> generateEventMap() {
+    Map<DateTime, List<Exam>> mapOfExams = {};
+    for (var element in exams) {
+      mapOfExams.putIfAbsent(element.date, () => []);
+      mapOfExams[element.date]?.add(element);
+    }
+    return mapOfExams;
   }
 
   Future<void> fetchExams() async {
@@ -78,6 +82,7 @@ class ExamsProvider with ChangeNotifier {
       }
 
       _exams = loadedExams;
+      _examsMap = generateEventMap();
       notifyListeners();
     } catch (err) {
       rethrow;
