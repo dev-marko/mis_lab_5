@@ -26,8 +26,8 @@ class Auth with ChangeNotifier {
     return token != "";
   }
 
-  String get userId {
-    return _userId!;
+  String? get userId {
+    return _userId;
   }
 
   Future<void> _authenticate(
@@ -84,12 +84,14 @@ class Auth with ChangeNotifier {
     return _authenticate(email, password, 'signInWithPassword');
   }
 
-  void logout() {
+  void logout() async {
     _token = null;
     _userId = null;
     _expiryDate = null;
     _authTimer!.cancel();
     _authTimer = null;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('userData');
     notifyListeners();
   }
 
@@ -102,22 +104,44 @@ class Auth with ChangeNotifier {
     _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
 
-  Future<void> _createExamsListForNewUser() async {
-    final Uri url = Uri.https(
-      'finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
-      '/userExams/$userId.json',
-      {
-        "auth": token,
-      },
-    );
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    try {
-      final result = await http.post(
-        url,
-        body: json.encode({[]}),
-      );
-    } catch (err) {
-      print(err);
+    if (!prefs.containsKey('userData')) {
+      return false;
     }
+
+    final extractedUserData = json.decode(prefs.getString('userData')!);
+    final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
+
+    if (expiryDate.isBefore(DateTime.now())) {
+      return false;
+    }
+
+    _token = extractedUserData['token'];
+    _userId = extractedUserData['userId'];
+    _expiryDate = expiryDate;
+    notifyListeners();
+    _autoLogout();
+    return true;
   }
+
+  // Future<void> _createExamsListForNewUser() async {
+  //   final Uri url = Uri.https(
+  //     'finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
+  //     '/userExams/$userId.json',
+  //     {
+  //       "auth": token,
+  //     },
+  //   );
+
+  //   try {
+  //     final result = await http.post(
+  //       url,
+  //       body: json.encode({[]}),
+  //     );
+  //   } catch (err) {
+  //     print(err);
+  //   }
+  // }
 }

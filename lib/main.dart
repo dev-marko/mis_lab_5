@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mis_lab_4/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -6,9 +7,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'package:mis_lab_4/providers/exams_provider.dart';
+import 'package:mis_lab_4/providers/authentication_provider.dart';
 import 'package:mis_lab_4/screens/authentication_screen.dart';
 import 'package:mis_lab_4/screens/exams_screen.dart';
-import 'package:mis_lab_4/providers/authentication_provider.dart';
+import 'package:mis_lab_4/screens/calendar_screen.dart';
 
 /// ### Laboratory Exercise 4 ###
 /// Author: Marko Spasenovski
@@ -63,10 +65,18 @@ class MyApp extends StatelessWidget {
             ),
           ),
           home: auth.isAuthenticated
-              ? const ExamsScreen()
-              : const AuthenticationScreen(),
+              ? const CalendarScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? const SplashScreen()
+                          : const AuthenticationScreen(),
+                ),
           routes: {
             ExamsScreen.routeName: (ctx) => const ExamsScreen(),
+            CalendarScreen.routeName: (ctx) => const CalendarScreen(),
           },
         ),
       ),
