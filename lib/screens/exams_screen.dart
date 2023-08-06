@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mis_lab_4/providers/exams_provider.dart';
+import 'package:mis_lab_4/widgets/app_drawer.dart';
 import 'package:mis_lab_4/widgets/exam_list.dart';
 import 'package:mis_lab_4/widgets/new_exam.dart';
 import 'package:provider/provider.dart';
@@ -42,12 +43,32 @@ class _ExamsScreenState extends State<ExamsScreen> {
     );
   }
 
+  void _refresh() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await Provider.of<ExamsProvider>(context, listen: false)
+        .fetchExams()
+        .then((_) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Exams & Midterms'),
         actions: [
+          IconButton(
+            onPressed: _refresh,
+            icon: Icon(
+              Icons.refresh,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
           IconButton(
             onPressed: () => _showAddExam(context),
             icon: Icon(
@@ -57,6 +78,7 @@ class _ExamsScreenState extends State<ExamsScreen> {
           ),
         ],
       ),
+      drawer: const AppDrawer(),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
