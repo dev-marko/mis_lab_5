@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:mis_lab_4/models/exceptions/http_exception.dart';
 
 import '../models/exam.dart';
@@ -48,8 +49,9 @@ class ExamsProvider with ChangeNotifier {
   Map<DateTime, List<Exam>> generateEventMap() {
     Map<DateTime, List<Exam>> mapOfExams = {};
     for (var element in exams) {
-      mapOfExams.putIfAbsent(element.date, () => []);
-      mapOfExams[element.date]?.add(element);
+      var key = DateFormat('yyyy-MM-dd').parse(element.date.toIso8601String());
+      mapOfExams.putIfAbsent(key, () => []);
+      mapOfExams[key]?.add(element);
     }
     return mapOfExams;
   }
@@ -152,31 +154,25 @@ class ExamsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteExam(String id) async {
-    final Uri url = Uri.https(
-      'finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
-      '/userExams/$userId.json/$id.json',
-      {
-        "auth": authToken,
-      },
-    );
-
+  Future<Exam> deleteExam(String id) async {
     final existingExamIndex = _exams.indexWhere((exam) => exam.id == id);
     var existingExam = _exams[existingExamIndex];
 
     _exams.removeAt(existingExamIndex);
     notifyListeners();
 
-    final response = await http.delete(
-      url,
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
-    );
-
-    if (response.statusCode >= 400) {
-      _exams.insert(existingExamIndex, existingExam);
-      notifyListeners();
-      throw HttpException('Error occured: could not delete exam.');
+    try {
+      await FirebaseDatabase.instance
+          .ref()
+          .child('userExams')
+          .child('$userId')
+          .child(id)
+          .remove();
+    } catch (err) {
+      HttpException("An exception occured");
     }
+
+    return existingExam;
   }
 
   Exam findById(String id) {
