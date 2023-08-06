@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mis_lab_4/screens/splash_screen.dart';
+import 'package:mis_lab_4/services/notification_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -21,6 +23,12 @@ import 'package:mis_lab_4/screens/calendar_screen.dart';
 void main() async {
   await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
+  await Permission.notification.isDenied.then((value) {
+    if (value) {
+      Permission.notification.request();
+    }
+  });
+  await NotificationService().init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
