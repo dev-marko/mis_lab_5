@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mis_lab_4/services/notification_service.dart';
 
 import 'package:provider/provider.dart';
 
@@ -14,6 +15,15 @@ class ExamCard extends StatelessWidget {
     final Exam exam = Provider.of<Exam>(context, listen: false);
     final examsProvider = Provider.of<ExamsProvider>(context, listen: false);
 
+    void deleteExam(Exam exam) {
+      examsProvider.deleteExam(exam.id!);
+
+      NotificationService().showNotification(
+        title: "Exam Deleted!",
+        body: "${exam.subjectName} has been deleted. Refresh to see.",
+      );
+    }
+
     return Card(
       elevation: 5,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
@@ -25,12 +35,12 @@ class ExamCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          DateFormat.yMMMd().format(exam.date),
+          DateFormat.yMMMd().add_jm().format(exam.date),
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete),
           color: Theme.of(context).colorScheme.error,
-          onPressed: () => examsProvider.deleteExam(exam.id!),
+          onPressed: () => deleteExam(exam),
         ),
       ),
     );
