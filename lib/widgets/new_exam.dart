@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mis_lab_4/services/notification_service.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exam.dart';
@@ -30,23 +31,54 @@ class _NewExamState extends State<NewExam> {
     await Provider.of<ExamsProvider>(context, listen: false)
         .addExam(Exam(subjectName: enteredSubjectName, date: _selectedDate!));
 
+    NotificationService().showNotification(
+      title: "New Exam!",
+      body: "$enteredSubjectName has been added to your calendar!",
+    );
+
+    NotificationService().scheduleNotification(
+      title: "Reminder!",
+      body: "$enteredSubjectName is happening in 30 minutes!",
+      seconds: ((_selectedDate?.millisecondsSinceEpoch)! ~/
+              Duration.millisecondsPerSecond) +
+          1800,
+    );
+
     Navigator.of(context).pop();
   }
 
-  void _presentDatePicker() {
-    showDatePicker(
+  Future<void> _presentDateTimePicker() async {
+    final DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2022),
-      lastDate: DateTime.now(),
-    ).then((value) => {
-          if (value != null)
-            {
-              setState(() {
-                _selectedDate = value;
-              })
-            }
-        });
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+
+    if (selectedDate == null) return;
+
+    if (!context.mounted) {
+      setState(() {
+        _selectedDate = selectedDate;
+      });
+    }
+
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(selectedDate),
+    );
+
+    setState(() {
+      selectedTime == null
+          ? _selectedDate = selectedDate
+          : _selectedDate = DateTime(
+              selectedDate.year,
+              selectedDate.month,
+              selectedDate.day,
+              selectedTime.hour,
+              selectedTime.minute,
+            );
+    });
   }
 
   @override
@@ -69,11 +101,11 @@ class _NewExamState extends State<NewExam> {
                 children: [
                   Text(
                     _selectedDate == null
-                        ? 'No Date Chosen!'
-                        : 'Picked Date: ${DateFormat.yMMMd().format(_selectedDate!)}',
+                        ? 'No Date & Time Chosen!'
+                        : 'Picked Date: ${DateFormat.yMMMd().add_jm().format(_selectedDate!)}',
                   ),
                   TextButton(
-                    onPressed: _presentDatePicker,
+                    onPressed: _presentDateTimePicker,
                     child: const Text(
                       'Choose Date',
                       style: TextStyle(
