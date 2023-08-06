@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:mis_lab_4/widgets/app_drawer.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'package:table_calendar/table_calendar.dart';
 
@@ -41,16 +42,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     super.didChangeDependencies();
     if (_isInit) {
       setState(() {
         _isLoading = true;
       });
-      Provider.of<ExamsProvider>(context).fetchExams().then((_) {
+      await Provider.of<ExamsProvider>(context, listen: false)
+          .fetchExams()
+          .then((_) {
         setState(() {
           _isLoading = false;
         });
+        var examsProvider = Provider.of<ExamsProvider>(context, listen: false);
+        _populateExamsMap(examsProvider);
+        _selectedEvents.value = _getEventsForDay(_selectedDay!);
       });
       _isInit = false;
     }
@@ -59,7 +65,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-
+    tz.initializeTimeZones();
     _selectedDay = _focusedDay;
     _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
   }
@@ -86,34 +92,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  void _refresh() {
+  void _refresh() async {
     setState(() {
       _isLoading = true;
     });
-    Provider.of<ExamsProvider>(context, listen: false).fetchExams().then((_) {
+    await Provider.of<ExamsProvider>(context, listen: false)
+        .fetchExams()
+        .then((_) {
       setState(() {
         _isLoading = false;
       });
+      var examsProvider = Provider.of<ExamsProvider>(context, listen: false);
+      _populateExamsMap(examsProvider);
+      _selectedEvents.value = _getEventsForDay(_selectedDay!);
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final examsProvider = Provider.of<ExamsProvider>(context);
+  void _populateExamsMap(ExamsProvider examsProvider) {
     _examsMap = LinkedHashMap<DateTime, List<Exam>>(
       equals: isSameDay,
       hashCode: (DateTime key) =>
           key.day * 1000000 + key.month * 10000 + key.year,
     )..addAll(examsProvider.examsMap);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final examsProvider = Provider.of<ExamsProvider>(context);
+    _populateExamsMap(examsProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Exams & Midterms'),
         actions: [
           IconButton(
-              onPressed: _refresh,
-              icon: Icon(Icons.refresh,
-                  color: Theme.of(context).colorScheme.secondary)),
+            onPressed: _refresh,
+            icon: Icon(
+              Icons.refresh,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
           IconButton(
             onPressed: () => _showAddExam(context),
             icon: Icon(
