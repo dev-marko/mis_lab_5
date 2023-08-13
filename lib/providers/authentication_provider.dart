@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -92,6 +93,7 @@ class Auth with ChangeNotifier {
     _authTimer = null;
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('userData');
+    FirebaseAuth.instance.signOut();
     notifyListeners();
   }
 

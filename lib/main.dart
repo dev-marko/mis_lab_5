@@ -85,6 +85,8 @@ class MyApp extends StatelessWidget {
           routes: {
             ExamsScreen.routeName: (ctx) => const ExamsScreen(),
             CalendarScreen.routeName: (ctx) => const CalendarScreen(),
+            AuthenticationScreen.routeName: (ctx) =>
+                const AuthenticationScreen()
           },
         ),
       ),

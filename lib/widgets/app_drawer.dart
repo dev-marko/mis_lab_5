@@ -37,7 +37,6 @@ class AppDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             onTap: () {
-              Navigator.of(context).pop();
               Provider.of<Auth>(context, listen: false).logout();
             },
             leading: const Icon(Icons.exit_to_app),
