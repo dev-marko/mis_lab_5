@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mis_lab_4/screens/locations_screen.dart';
 import 'package:mis_lab_4/screens/splash_screen.dart';
 import 'package:mis_lab_4/services/notification_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
           routes: {
             ExamsScreen.routeName: (ctx) => const ExamsScreen(),
             CalendarScreen.routeName: (ctx) => const CalendarScreen(),
+            LocationsScreen.routeName: (ctx) => const LocationsScreen(),
             AuthenticationScreen.routeName: (ctx) =>
                 const AuthenticationScreen()
           },

@@ -34,9 +34,12 @@ class ExamCard extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: Text(
-          DateFormat.yMMMd().add_jm().format(exam.date),
-        ),
+        subtitle: exam.location == null
+            ? Text(
+                'Date & Time: ${DateFormat.yMMMd().add_jm().format(exam.date)}')
+            : Text(
+                "\nDate & Time: ${DateFormat.yMMMd().add_jm().format(exam.date)}\nLocation: ${exam.location?.name}, ${exam.location?.address}",
+              ),
         trailing: IconButton(
           icon: const Icon(Icons.delete),
           color: Theme.of(context).colorScheme.error,
