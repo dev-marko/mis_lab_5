@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:mis_lab_4/screens/choose_location_screen.dart';
 import 'package:mis_lab_4/services/notification_service.dart';
 import 'package:provider/provider.dart';
+import '../models/location.dart';
 
 import '../models/exam.dart';
 import '../providers/exams_provider.dart';
@@ -16,6 +19,7 @@ class NewExam extends StatefulWidget {
 class _NewExamState extends State<NewExam> {
   final _subjectNameController = TextEditingController();
   DateTime? _selectedDate;
+  Location? _selectedLocation;
 
   Future<void> _submitExam() async {
     if (_subjectNameController.text.isEmpty) {
@@ -28,8 +32,13 @@ class _NewExamState extends State<NewExam> {
       return;
     }
 
-    await Provider.of<ExamsProvider>(context, listen: false)
-        .addExam(Exam(subjectName: enteredSubjectName, date: _selectedDate!));
+    await Provider.of<ExamsProvider>(context, listen: false).addExam(
+      Exam(
+        subjectName: enteredSubjectName,
+        date: _selectedDate!,
+        location: _selectedLocation,
+      ),
+    );
 
     NotificationService().showNotification(
       title: "New Exam!",
@@ -81,6 +90,25 @@ class _NewExamState extends State<NewExam> {
     });
   }
 
+  Future<void> _selectEventLocation(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChooseLocationScreen()),
+    );
+
+    setState(() {
+      var lat = result['geometry']['location']['lat'];
+      var lng = result['geometry']['location']['lng'];
+      _selectedLocation = Location(
+        name: result['name'],
+        address: result['vicinity'],
+        coordinates: LatLng(lat, lng),
+      );
+    });
+
+    if (!mounted) return;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -108,6 +136,30 @@ class _NewExamState extends State<NewExam> {
                     onPressed: _presentDateTimePicker,
                     child: const Text(
                       'Choose Date',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _selectedLocation == null
+                        ? 'No Location Chosen!'
+                        : "Picked Location: ${_selectedLocation?.name}",
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      _selectEventLocation(context);
+                    },
+                    child: const Text(
+                      'Choose Location',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
