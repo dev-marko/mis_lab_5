@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mis_lab_4/screens/calendar_screen.dart';
 import 'package:mis_lab_4/screens/exams_screen.dart';
+import 'package:mis_lab_4/screens/locations_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/authentication_provider.dart';
@@ -25,6 +26,15 @@ class AppDrawer extends StatelessWidget {
             },
             leading: const Icon(Icons.calendar_month_sharp),
             title: const Text('My Calendar'),
+          ),
+          const Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.of(context)
+                  .pushReplacementNamed(LocationsScreen.routeName);
+            },
+            leading: const Icon(Icons.map),
+            title: const Text('Locations'),
           ),
           const Divider(),
           ListTile(

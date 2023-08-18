@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mis_lab_4/models/exceptions/http_exception.dart';
+import 'package:mis_lab_4/models/location.dart';
 
 import '../models/exam.dart';
 
@@ -78,6 +80,14 @@ class ExamsProvider with ChangeNotifier {
               id: examId,
               subjectName: examData['subjectName'],
               date: DateTime.parse(examData['date']),
+              location: examData['location'] == null
+                  ? null
+                  : Location(
+                      name: examData['location']['name'],
+                      address: examData['location']['address'],
+                      coordinates: LatLng(examData['location']['lat'],
+                          examData['location']['lng']),
+                    ),
             ),
           );
         });
@@ -86,6 +96,80 @@ class ExamsProvider with ChangeNotifier {
       _exams = loadedExams;
       _examsMap = generateEventMap();
       notifyListeners();
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  Future<List<Marker>> getEventMarkers() async {
+    final Uri url = Uri.https(
+      'finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
+      '/eventMarkers/$userId.json',
+      {
+        "auth": authToken,
+      },
+    );
+
+    try {
+      final eventMarkersResponse = await http.get(url);
+      final eventMarkersData = json.decode(eventMarkersResponse.body);
+      final List<Marker> markers = [];
+      final List<Location> loadedLocations = [];
+
+      if (eventMarkersData == null) return markers;
+
+      final locationsMap = eventMarkersData as Map<String, dynamic>;
+
+      locationsMap.forEach((locationId, locationData) {
+        loadedLocations.add(
+          Location(
+            name: locationData['location']['name'],
+            address: locationData['location']['address'],
+            coordinates: LatLng(locationData['location']['lat'],
+                locationData['location']['lng']),
+          ),
+        );
+      });
+
+      for (var element in loadedLocations) {
+        markers.add(
+          Marker(
+            markerId: MarkerId(element.name),
+            position: element.coordinates,
+            infoWindow: InfoWindow(title: element.name),
+          ),
+        );
+      }
+
+      return markers;
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  Future<void> addEventMarker(Location eventLocation) async {
+    final Uri url = Uri.https(
+      'finki-mis-default-rtdb.europe-west1.firebasedatabase.app',
+      '/eventMarkers/$userId.json',
+      {
+        "auth": authToken,
+      },
+    );
+
+    try {
+      await http.post(
+        url,
+        body: json.encode(
+          {
+            'location': {
+              'name': eventLocation.name,
+              'address': eventLocation.address,
+              'lat': eventLocation.coordinates.latitude,
+              'lng': eventLocation.coordinates.longitude,
+            },
+          },
+        ),
+      );
     } catch (err) {
       rethrow;
     }
@@ -106,8 +190,18 @@ class ExamsProvider with ChangeNotifier {
         body: json.encode({
           'subjectName': exam.subjectName,
           'date': exam.date.toIso8601String(),
+          'location': {
+            'name': exam.location?.name,
+            'address': exam.location?.address,
+            'lat': exam.location?.coordinates.latitude,
+            'lng': exam.location?.coordinates.longitude,
+          },
         }),
       );
+
+      if (exam.location != null) {
+        await addEventMarker(exam.location!);
+      }
 
       var examData = json.decode(examResponse.body);
 
@@ -115,6 +209,7 @@ class ExamsProvider with ChangeNotifier {
         id: examData['name'],
         subjectName: exam.subjectName,
         date: exam.date,
+        location: exam.location,
       );
 
       _exams.add(newExam);
