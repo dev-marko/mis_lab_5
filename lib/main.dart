@@ -15,7 +15,7 @@ import 'package:mis_lab_4/screens/authentication_screen.dart';
 import 'package:mis_lab_4/screens/exams_screen.dart';
 import 'package:mis_lab_4/screens/calendar_screen.dart';
 
-/// ### Laboratory Exercise 4 ###
+/// ### Laboratory Exercise 5 ###
 /// Author: Marko Spasenovski
 /// Index number: 191128
 /// Subject: Mobile Informatic Systems
